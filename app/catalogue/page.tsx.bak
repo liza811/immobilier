@@ -1,0 +1,155 @@
+"use client"
+
+import { useState } from "react"
+import { Filter, Search, X } from "lucide-react"
+import { Header } from "@/components/header"
+import { FurnitureCard } from "@/components/furniture-card"
+import { FilterSidebar } from "@/components/filter-sidebar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { meubles, categories } from "@/lib/data"
+
+export default function Catalogue() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  const filteredMeubles = meubles.filter((meuble) => {
+    const matchesSearch =
+      meuble.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      meuble.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      meuble.categorie.toLowerCase().includes(searchQuery.toLowerCase())
+
+    const matchesCategory = activeCategory ? meuble.categorie === activeCategory : true
+
+    return matchesSearch && matchesCategory
+  })
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1">
+        <div className="container py-8">
+          <h1 className="text-3xl font-bold mb-6">Catalogue</h1>
+
+          {/* Categories */}
+          <div className="mb-8 overflow-x-auto">
+            <div className="flex space-x-2 pb-2">
+              <Button
+                variant={activeCategory === null ? "default" : "outline"}
+                className={activeCategory === null ? "bg-[#1a472a] hover:bg-[#1a472a]/90" : ""}
+                onClick={() => setActiveCategory(null)}
+              >
+                Tous
+              </Button>
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  variant={activeCategory === category ? "default" : "outline"}
+                  className={activeCategory === category ? "bg-[#13342a] hover:bg-[#1a472a]/90" : ""}
+                  onClick={() => setActiveCategory(category)}
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-8">
+            {/* Sidebar for desktop */}
+            <aside className="hidden md:block w-64 shrink-0">
+              <FilterSidebar />
+            </aside>
+
+            {/* Mobile filter button and sheet */}
+            <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="md:hidden flex items-center gap-2 mb-4">
+                  <Filter className="h-4 w-4" />
+                  Filtres
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-full sm:w-[350px] p-0">
+                <FilterSidebar isMobile onClose={() => setIsFilterOpen(false)} />
+              </SheetContent>
+            </Sheet>
+
+            {/* Main content */}
+            <div className="flex-1">
+              <div className="mb-6">
+                <div className="relative">
+                  <Input
+                    type="search"
+                    placeholder="Rechercher un meuble..."
+                    className="w-full pr-10"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery ? (
+                    <button className="absolute right-3 top-1/2 -translate-y-1/2" onClick={() => setSearchQuery("")}>
+                      <X className="h-4 w-4 text-muted-foreground" />
+                      <span className="sr-only">Effacer la recherche</span>
+                    </button>
+                  ) : (
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
+              </div>
+
+              {filteredMeubles.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredMeubles.map((meuble) => (
+                    <FurnitureCard key={meuble.id} meuble={meuble} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <h3 className="text-lg font-medium mb-2">Aucun résultat trouvé</h3>
+                  <p className="text-muted-foreground">
+                    Essayez de modifier vos critères de recherche ou de réinitialiser les filtres.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+      <footer className="bg-[#1a472a] text-white py-8">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-lg font-bold mb-4">Mernache Meuble</h3>
+              <p className="text-sm text-white/80">
+                Votre spécialiste en mobilier de qualité depuis 2010. Nous proposons une large gamme de meubles pour
+                tous les espaces de votre maison.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Liens Rapides</h3>
+              <ul className="space-y-2 text-sm text-white/80">
+                <li>Accueil</li>
+                <li>Catalogue</li>
+                <li>Commander sur mesure</li>
+                <li>À propos</li>
+                <li>Contact</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Contact</h3>
+              <address className="not-italic text-sm text-white/80 space-y-2">
+                <p>123 Avenue des Meubles</p>
+                <p>75000 Paris, France</p>
+                <p>Téléphone: 01 23 45 67 89</p>
+                <p>Email: contact@mernachemeuble.fr</p>
+              </address>
+            </div>
+          </div>
+          <div className="border-t border-white/20 mt-8 pt-4 text-center text-sm text-white/60">
+            <p>&copy; {new Date().getFullYear()} Mernache Meuble. Tous droits réservés.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
