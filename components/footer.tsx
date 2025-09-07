@@ -31,7 +31,7 @@ export function Footer() {
             </div>
           </div>
           <div className="border-t border-white/20 mt-8 pt-4 text-center text-sm text-white/60">
-            <p>&copy; {new Date().getFullYear()} Mernache Meuble. Tous droits réservés.</p>
+            <p>&copy; {new Date().getFullYear()} Meuble. Tous droits réservés.</p>
           </div>
         </div>
       </footer>
